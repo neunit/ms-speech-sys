@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- In order to comply with the rule of crate.io, decrease keywords to 5 in Cargo.toml.
+
 ## [0.1.0] - 2019-6-28
 
 ### Added
