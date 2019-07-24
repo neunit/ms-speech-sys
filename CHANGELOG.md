@@ -2,9 +2,14 @@
 
 ## [Unreleased]
 
+## [0.1.1] - 2019-7-24
+
 ### Changed
 
+- Add error handling and macros.
 - In order to comply with the rule of crate.io, decrease keywords to 5 in Cargo.toml.
+- Add some helper functions.
+- Add `properties` mod.
 
 ## [0.1.0] - 2019-6-28
 
