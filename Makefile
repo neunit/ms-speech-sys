@@ -1,7 +1,6 @@
 .PHONY: default build clean clippy release test update
 
 CARGO_FLAGS := --features "$(NS_FEATURES)"
-SPECIAL_FILES := examples/asr_simple.rs
 
 default: build
 
