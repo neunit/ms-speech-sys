@@ -5,10 +5,7 @@
 macro_rules! FlattenProps {
     ($name:ident) => {
         impl $crate::properties::PropertyBag for $name {
-            fn get_by_id(
-                &self,
-                id: $crate::api::PropertyId,
-            ) -> Result<String> {
+            fn get_by_id(&self, id: $crate::api::PropertyId) -> Result<String> {
                 self.props.get_by_id(id)
             }
 
@@ -34,7 +31,6 @@ macro_rules! FlattenProps {
         }
     };
 }
-
 
 /// A quick and dirty implementation of derive Handle trait.
 #[macro_export]
@@ -67,7 +63,7 @@ macro_rules! DeriveHandle {
 /// Compact version to wrap underlying handle.
 #[macro_export]
 macro_rules! SmartHandle {
-    ( $name:ident, $t:ty ,$release:ident, $check:ident ) => (
+    ( $name:ident, $t:ty ,$release:ident, $check:ident ) => {
         $crate::DeriveHandle!($name, $t, $release, $check);
 
         /// Wrap the underlying handle with common methods.
@@ -117,8 +113,8 @@ macro_rules! SmartHandle {
                 Self::new($crate::INVALID_HANDLE as $t)
             }
         }
-    );
-    ( $name:ident, $t:ty ,$release:ident, $check:ident ,$props:ident ) => (
+    };
+    ( $name:ident, $t:ty ,$release:ident, $check:ident ,$props:ident ) => {
         $crate::DeriveHandle!($name, $t, $release, $check);
 
         /// Wrap the underlying handle with common methods.
@@ -140,8 +136,7 @@ macro_rules! SmartHandle {
         }
 
         $crate::FlattenProps!($name);
-    );
-
+    };
 }
 
 /// Pre-alloc buffer to retrieve string of ffi.
@@ -152,13 +147,12 @@ macro_rules! ffi_get_string {
         $(
             let _max_len = $sz;
         )?
-        let s = String::with_capacity(_max_len + 1);
-        let buf = r#try!(::std::ffi::CString::new(s));
-        let buf_ptr = buf.into_raw();
+        let mut s: Vec<u8> = vec![0; _max_len];
+        let buf_ptr = s.as_mut_ptr() as *mut ::std::os::raw::c_char;
         unsafe {
             r#try!($crate::from_hr($f($h, buf_ptr, _max_len as u32)));
-            let output = ::std::ffi::CString::from_raw(buf_ptr);
-            r#try!(output.into_string())
+            let output = ::std::ffi::CStr::from_ptr(buf_ptr);
+            r#try!(output.to_str().map(String::from))
         }
     })
 }
@@ -170,4 +164,3 @@ macro_rules! hr {
         $crate::from_hr(unsafe { $ffi })
     };
 }
-

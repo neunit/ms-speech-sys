@@ -1,6 +1,10 @@
 # CHANGELOG
 
-## [Unreleased]
+## [0.1.2] - 2019-7-24
+
+### Fixed
+
+- To avoid UB, initialize the buffer in macro `ffi_get_string`.
 
 ## [0.1.1] - 2019-7-24
 

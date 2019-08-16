@@ -1,10 +1,10 @@
 //! Low level FFI bindings for Microsoft Speech SDK.
 //!
+pub mod api;
 pub mod macros;
 pub mod properties;
-pub mod api;
-pub use properties::*;
 pub use api::*;
+pub use properties::*;
 
 use fmt::{Display, Formatter};
 use std::{error::Error as StdError, fmt};
