@@ -38,7 +38,7 @@ macro_rules! DeriveHandle {
         /// Drop the handle by underlying destructor.
         impl Drop for $name {
             fn drop(&mut self) {
-                self.$release(self);
+                self.$release();
                 self.handle = $crate::INVALID_HANDLE;
             }
         }
@@ -78,7 +78,45 @@ macro_rules! DeriveHandle {
 /// Compact version to wrap underlying handle.
 #[macro_export]
 macro_rules! SmartHandle {
-    ( $name:ident, $t:ty ,$release:ident, $check:ident ) => {
+    ( $name:ident, $t:ty, $release:ident ) => {
+        $crate::DeriveHandle!($name, $t, $release);
+
+        /// Wrap the underlying handle with common methods.
+        pub struct $name {
+            handle: $t,
+        }
+
+        impl $name {
+            /// Constructor.
+            pub fn new(handle: $t) -> Self {
+                $name { handle }
+            }
+        }
+
+        /// Syntactic sugar for dereference.
+        impl std::ops::Deref for $name {
+            type Target = $t;
+
+            fn deref(&self) -> &$t {
+                &self.handle
+            }
+        }
+
+        /// Convert from underlying handle.
+        impl From<$t> for $name {
+            fn from(handle: $t) -> Self {
+                Self::new(handle)
+            }
+        }
+
+        /// For somewhere need default implementation.
+        impl Default for $name {
+            fn default() -> Self {
+                Self::new($crate::INVALID_HANDLE as $t)
+            }
+        }
+    };
+    ( $name:ident, $t:ty, $release:ident, $check:ident ) => {
         $crate::DeriveHandle!($name, $t, $release, $check);
 
         /// Wrap the underlying handle with common methods.
@@ -129,7 +167,7 @@ macro_rules! SmartHandle {
             }
         }
     };
-    ( $name:ident, $t:ty ,$release:ident, $check:ident ,$props:ident ) => {
+    ( $name:ident, $t:ty, $release:ident, $check:ident ,$props:ident ) => {
         $crate::DeriveHandle!($name, $t, $release, $check);
 
         /// Wrap the underlying handle with common methods.

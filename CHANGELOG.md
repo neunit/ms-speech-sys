@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## [0.2.1] - 2019-9-27
+
+### Added
+
+- SmartHandle support customized destructure now.
+
 ## [0.2.0] - 2019-9-27
 
 ### Fixed
