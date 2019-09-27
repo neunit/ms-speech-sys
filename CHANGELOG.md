@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## [0.2.0] - 2019-9-27
+
+### Fixed
+
+- Bump version to 0.2.0.
+- Change name from "ms_speech_sys" to "ms-speech-sys".
+- Change rustfmt configuration according to rust project and apply it.
+- Macro DeriveHandle add support for member destructure function.
+
+
 ## [0.1.2] - 2019-7-24
 
 ### Fixed

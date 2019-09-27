@@ -33,22 +33,13 @@ fn linux(mut renew: bool) {
         let dw_file = out_path.join("linux.sdk");
         let sdk_file = dw_file.to_str().unwrap();
         download_file(LINUX_SDK_URL, sdk_file);
-        let args = [
-            "--strip",
-            "1",
-            "-xzf",
-            sdk_file,
-            "-C",
-            sdk_path.to_str().unwrap(),
-        ];
+        let args = ["--strip", "1", "-xzf", sdk_file, "-C", sdk_path.to_str().unwrap()];
         Command::new("tar").args(&args).status().unwrap();
     }
 
     let lib_path = sdk_path.join("lib").join("x64");
     println!("cargo:rustc-link-search=native={}", lib_path.display());
-    println!(
-        "cargo:rustc-link-lib=dylib=Microsoft.CognitiveServices.Speech.core"
-    );
+    println!("cargo:rustc-link-lib=dylib=Microsoft.CognitiveServices.Speech.core");
 
     let mut inc_arg = String::from("-I");
     inc_arg.push_str(sdk_path.join("include").join("c_api").to_str().unwrap());
@@ -58,9 +49,7 @@ fn linux(mut renew: bool) {
         .generate()
         .expect("Unable to generate bindings");
 
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
+    bindings.write_to_file(out_path.join("bindings.rs")).expect("Couldn't write bindings!");
 }
 
 fn macos(mut renew: bool) {
@@ -83,9 +72,7 @@ fn macos(mut renew: bool) {
     println!("cargo:rustc-link-lib=framework=MicrosoftCognitiveServicesSpeech");
 
     let mut inc_arg = String::from("-I");
-    let inc_path = sdk_path
-        .join("MicrosoftCognitiveServicesSpeech.framework")
-        .join("Headers");
+    let inc_path = sdk_path.join("MicrosoftCognitiveServicesSpeech.framework").join("Headers");
     inc_arg.push_str(inc_path.to_str().unwrap());
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
@@ -93,7 +80,5 @@ fn macos(mut renew: bool) {
         .generate()
         .expect("Unable to generate bindings");
 
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
+    bindings.write_to_file(out_path.join("bindings.rs")).expect("Couldn't write bindings!");
 }

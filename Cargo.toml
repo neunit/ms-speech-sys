@@ -1,6 +1,6 @@
 [package]
-name = "ms_speech_sys"
-version = "0.1.3"
+name = "ms-speech-sys"
+version = "0.2.0"
 authors = ["Gary Hai <gary@neunit.com>"]
 edition = "2018"
 description = "Low level FFI bindings for Microsoft LUIS API."

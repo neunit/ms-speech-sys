@@ -13,19 +13,11 @@ macro_rules! FlattenProps {
                 self.props.get_by_name(name)
             }
 
-            fn put_by_id<T: ToString>(
-                &self,
-                id: $crate::api::PropertyId,
-                value: T,
-            ) -> Result<()> {
+            fn put_by_id<T: ToString>(&self, id: $crate::api::PropertyId, value: T) -> Result<()> {
                 self.props.put_by_id(id, value)
             }
 
-            fn put_by_name<T: ToString>(
-                &self,
-                name: &str,
-                value: T,
-            ) -> Result<()> {
+            fn put_by_name<T: ToString>(&self, name: &str, value: T) -> Result<()> {
                 self.props.put_by_name(name, value)
             }
         }
@@ -35,7 +27,28 @@ macro_rules! FlattenProps {
 /// A quick and dirty implementation of derive Handle trait.
 #[macro_export]
 macro_rules! DeriveHandle {
-    ( $name:ident, $t:ty $( ,$release:ident, $check:ident)? ) => (
+    ( $name:ident, $t:ty ,$release:ident ) => {
+        /// Derive the trait used to get underlying handle value.
+        impl $crate::Handle<$t> for $name {
+            fn handle(&self) -> $t {
+                self.handle
+            }
+        }
+
+        /// Drop the handle by underlying destructor.
+        impl Drop for $name {
+            fn drop(&mut self) {
+                self.$release(self);
+                self.handle = $crate::INVALID_HANDLE;
+            }
+        }
+
+        /// Enable threading operation.
+        unsafe impl Send for $name {}
+        unsafe impl Sync for $name {}
+    };
+
+    ( $name:ident, $t:ty ,$release:ident, $check:ident ) => {
         /// Derive the trait used to get underlying handle value.
         impl $crate::Handle<$t> for $name {
             fn handle(&self) -> $t {
@@ -47,8 +60,10 @@ macro_rules! DeriveHandle {
         impl Drop for $name {
             fn drop(&mut self) {
                 unsafe {
-                    $( if !$check(self.handle) { return; } )?
-                    $( $release(self.handle); )?
+                    if !$check(self.handle) {
+                        return;
+                    }
+                    $release(self.handle);
                 }
                 self.handle = $crate::INVALID_HANDLE;
             }
@@ -57,7 +72,7 @@ macro_rules! DeriveHandle {
         /// Enable threading operation.
         unsafe impl Send for $name {}
         unsafe impl Sync for $name {}
-    );
+    };
 }
 
 /// Compact version to wrap underlying handle.
@@ -128,10 +143,7 @@ macro_rules! SmartHandle {
             pub fn new(handle: $t) -> Self {
                 let mut hprops = INVALID_HANDLE;
                 unsafe { $props(handle, &mut hprops) };
-                $name {
-                    handle,
-                    props: $crate::Properties::new(hprops),
-                }
+                $name { handle, props: $crate::Properties::new(hprops) }
             }
         }
 

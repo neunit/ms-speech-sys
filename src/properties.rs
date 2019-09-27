@@ -30,23 +30,13 @@ pub trait PropertyBag {
     }
 }
 
-SmartHandle!(
-    Properties,
-    SPXPROPERTYBAGHANDLE,
-    property_bag_release,
-    property_bag_is_valid
-);
+SmartHandle!(Properties, SPXPROPERTYBAGHANDLE, property_bag_release, property_bag_is_valid);
 
 impl PropertyBag for Properties {
     fn get_by_id(&self, id: PropertyId) -> Result<String> {
         let blank = CString::new("")?;
         unsafe {
-            let v = property_bag_get_string(
-                self.handle,
-                id as c_int,
-                null(),
-                blank.as_ptr(),
-            );
+            let v = property_bag_get_string(self.handle, id as c_int, null(), blank.as_ptr());
             let vs = CStr::from_ptr(v).to_owned().into_string()?;
             property_bag_free_string(v);
             Ok(vs)
@@ -57,12 +47,7 @@ impl PropertyBag for Properties {
         let name = CString::new(name)?;
         let blank = CString::new("")?;
         unsafe {
-            let v = property_bag_get_string(
-                self.handle,
-                -1,
-                name.as_ptr(),
-                blank.as_ptr(),
-            );
+            let v = property_bag_get_string(self.handle, -1, name.as_ptr(), blank.as_ptr());
             let vs = CStr::from_ptr(v).to_owned().into_string()?;
             property_bag_free_string(v);
             Ok(vs)
